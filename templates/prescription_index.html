@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-container {
+            padding: 40px 30px;
+        }
+
+        .start-form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .chat-messages {
+            height: 450px;
+            overflow-y: auto;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            background: #f8fafc;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            border-radius: 20px;
+            max-width: 85%;
+            word-wrap: break-word;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 6px;
+        }
+
+        .bot-message {
+            background: white;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quick-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 18px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            resize: none;
+            min-height: 56px;
+            max-height: 120px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            padding: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .admin-link {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .admin-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 20px;
+            font-style: italic;
+            color: #718096;
+            text-align: center;
+            background: #f7fafc;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .typing-dots {
+            display: inline-block;
+            position: relative;
+            width: 60px;
+            height: 20px;
+            margin-left: 10px;
+        }
+
+        .typing-dots div {
+            position: absolute;
+            top: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: typing-bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots div:nth-child(1) { left: 8px; animation-delay: -0.32s; }
+        .typing-dots div:nth-child(2) { left: 24px; animation-delay: -0.16s; }
+        .typing-dots div:nth-child(3) { left: 40px; animation-delay: 0s; }
+
+        @keyframes typing-bounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .status-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .status-error {
+            background: #f56565;
+            color: white;
+        }
+
+        .prescription-summary {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .prescription-summary h4 {
+            color: #0369a1;
+            margin-bottom: 10px;
+        }
+
+        .prescription-summary p {
+            margin: 5px 0;
+            color: #374151;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .chat-container {
+                padding: 30px 20px;
+            }
+
+            .chat-messages {
+                height: 350px;
+            }
+
+            .admin-link {
+                top: 20px;
+                right: 20px;
+                padding: 10px 20px;
+            }
+
+            .quick-buttons {
+                flex-direction: column;
+            }
+
+            .quick-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="statusIndicator" class="status-indicator hidden"></div>
+    <a href="/admin/dashboard" class="admin-link"> Admin Dashboard</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Prescription Manager</h1>
+            <p>Smart prescription entry and management system</p>
+        </div>
+        
+        <div class="chat-container">
+            <div id="startForm" class="start-form">
+                <div class="form-group">
+                    <label for="patientName">👤 Patient Name</label>
+                    <input type="text" id="patientName" placeholder="Enter patient's full name" required>
+                </div>
+                <button onclick="startChat()" class="btn">Start Prescription Entry</button>
+            </div>
+            
+            <div id="chatInterface" class="hidden">
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="typing-indicator" id="typingIndicator">
+                    Assistant is typing
+                    <div class="typing-dots">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                </div>
+                <div class="input-container">
+                    <textarea id="messageInput" class="message-input" placeholder="Enter prescription details..." onkeypress="handleKeyPress(event)" rows="1"></textarea>
+                    <button onclick="sendMessage()" class="send-btn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPatientName = '';
+        let isProcessing = false;
+
+        // Auto-resize textarea
+        const messageInput = document.getElementById('messageInput');
+        if (messageInput) {
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        }
+
+        function showStatus(message, type = 'success') {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.textContent = message;
+            indicator.className = `status-indicator status-${type}`;
+            setTimeout(() => {
+                indicator.classList.add('hidden');
+            }, 3000);
+        }
+
+        async function startChat() {
+            const patientName = document.getElementById('patientName').value.trim();
+            
+            if (!patientName) {
+                showStatus('Please enter patient name', 'error');
+                return;
+            }
+
+            if (isProcessing) return;
+            isProcessing = true;
+
+            currentPatientName = patientName;
+            
+            try {
+                showTyping();
+                const response = await fetch('/start_chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: patientName })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to start chat');
+                }
+
+                const data = await response.json();
+                hideTyping();
+                
+                document.getElementById('startForm').classList.add('hidden');
+                document.getElementById('chatInterface').classList.remove('hidden');
+                
+                addMessage(data.message, 'bot', data.show_quick_buttons, data.quick_buttons);
+                
+                showStatus(`Started session for ${patientName}`, 'success');
+                
+            } catch (error) {
+                hideTyping();
+                showStatus('Error starting chat: ' + error.message, 'error');
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        async function sendMessage(quickResponse = null) {
+            if (isProcessing) return;
+            
+            const messageInput = document.getElementById('messageInput');
+            const message = quickResponse || messageInput.value.trim();
+            
+            if (!message) return;
+            
+            if (!quickResponse) {
+                addMessage(message, 'user');
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+            }
+            
+            isProcessing = true;
+            
+            try {
+                showTyping();
+                const response = await fetch('/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        name: currentPatientName 
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to send message');
+                }
+
+                const data = await response.json();
+                hideTyping();
+                
+                addMessage(data.message, 'bot', data.show_quick_buttons, data.quick_buttons);
+                
+                // Show success message if prescription was saved
+                if (data.message.includes('saved to database successfully')) {
+                    showStatus('Prescription saved successfully!', 'success');
+                }
+                
+            } catch (error) {
+                hideTyping();
+                addMessage('Error: ' + error.message, 'bot');
+                showStatus('Error sending message', 'error');
+            } finally {
+                isProcessing = false;
+            }
+        }
+
+        function addMessage(message, sender, showQuickButtons = false, quickButtons = []) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.innerHTML = message;
+            
+            if (showQuickButtons && quickButtons && quickButtons.length > 0) {
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'quick-buttons';
+                
+                quickButtons.forEach(button => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quick-btn';
+                    btn.textContent = button.text;
+                    btn.onclick = () => sendMessage(button.value);
+                    buttonsDiv.appendChild(btn);
+                });
+                
+                messageDiv.appendChild(buttonsDiv);
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const patientNameInput = document.getElementById('patientName');
+            patientNameInput.focus();
+            
+            // Handle enter key in patient name input
+            patientNameInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    startChat();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
